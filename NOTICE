@@ -1,0 +1,18 @@
+Sayline
+Copyright 2026 Sayline contributors
+
+This project was developed with reference to ZCode
+(https://github.com/zai-org/ZCode), Copyright Z.ai,
+licensed under the Apache License, Version 2.0.
+
+The ZCode ASR protocol, composer voice-input state machine and interaction
+patterns were studied from the ZCode source distribution at commit
+c5904686 (v3.18.1). Sayline reimplements them in Rust and React and does not
+ship the ZCode Electron runtime, application bundle, or any ZCode binary.
+
+The upstream repository's NOTICE.md and THIRD-PARTY-NOTICES.md are available
+at https://github.com/zai-org/ZCode. No proprietary ZCode asset is included
+in this repository.
+
+ZCode is a trademark of its respective owner. Sayline is an independent
+project and is not endorsed by or affiliated with Z.ai.

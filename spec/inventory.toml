@@ -1,0 +1,122 @@
+# 机器可读功能清单
+# status: verified = 有本轮证据；pending = 未验收
+
+[[feature]]
+id = "auth.zcode"
+area = "ZCode"
+title = "读取 ZCode 登录态并申请 ticket"
+spec = "spec/asr-protocol.md#2-ticket"
+acceptance = "真实 ZCode 端点 ticket acquired"
+status = "verified"
+
+[[feature]]
+id = "capture.mic"
+area = "Audio"
+title = "系统录音命令采集 16 kHz PCM16"
+spec = "spec/asr-protocol.md#1-音频格式"
+acceptance = "mock 会话 bytes 与录制时长一致"
+status = "verified"
+
+[[feature]]
+id = "asr.realtime"
+area = "ASR"
+title = "WebSocket realtime 会话与事件"
+spec = "spec/asr-protocol.md#3-websocket"
+acceptance = "mock 与真实服务均收到 started/completed"
+status = "verified"
+
+[[feature]]
+id = "hotkey.hold"
+area = "Input"
+title = "全局热键按住说话、松开结束"
+spec = "spec/inventory.toml"
+acceptance = "Xvfb 下 keydown/keyup 触发一次 mic 会话"
+status = "verified"
+
+[[feature]]
+id = "overlay.pill"
+area = "UI"
+title = "录音悬浮胶囊与音量波形"
+spec = "README.md#功能"
+acceptance = "截图 docs/evidence/overlay.png"
+status = "verified"
+
+[[feature]]
+id = "paste.auto"
+area = "Input"
+title = "识别后自动粘贴到焦点输入框"
+spec = "README.md#功能"
+acceptance = "Tk 目标窗口 ENTRY 收到最终文本"
+status = "verified"
+
+[[feature]]
+id = "history.store"
+area = "History"
+title = "本机 SQLite 历史"
+spec = "README.md#数据与隐私"
+acceptance = "sqlite transcripts 行与最终文本一致"
+status = "verified"
+
+[[feature]]
+id = "history.export"
+area = "History"
+title = "导出 Markdown / JSON"
+spec = "README.md#功能"
+acceptance = "导出文件写入下载目录"
+status = "verified"
+
+[[feature]]
+id = "files.transcribe"
+area = "Files"
+title = "音频文件转写"
+spec = "spec/asr-protocol.md#6-sayline-与-zcode-的差异"
+acceptance = "真实语音样本 Front_Center.wav → Front, center."
+status = "verified"
+
+[[feature]]
+id = "settings.save"
+area = "Settings"
+title = "设置保存与热键重注册"
+spec = "README.md#使用"
+acceptance = "settings.json 语言修改落盘"
+status = "verified"
+
+[[feature]]
+id = "settings.replacements"
+area = "Settings"
+title = "后处理替换规则"
+spec = "README.md#功能"
+acceptance = "cargo test settings::tests::replacements_prefer_longer_sources"
+status = "verified"
+
+[[feature]]
+id = "ui.voice-pill"
+area = "UI"
+title = "ZCode 风格录音胶囊"
+spec = "docs/agents/verification.md#8-ui-设计系统"
+acceptance = "浅色/深色截图与 10 根 3px 波形"
+status = "verified"
+
+[[feature]]
+id = "ui.theme"
+area = "UI"
+title = "跟随系统 / 浅色 / 深色主题"
+spec = "docs/agents/verification.md#8-ui-设计系统"
+acceptance = "settings.json theme 写入并即时生效"
+status = "verified"
+
+[[feature]]
+id = "tray.menu"
+area = "Shell"
+title = "托盘菜单"
+spec = "README.md#功能"
+acceptance = "真实桌面托盘可见并可退出"
+status = "pending"
+
+[[feature]]
+id = "package.deb"
+area = "Build"
+title = "deb 打包"
+spec = "README.md#构建与运行"
+acceptance = "dpkg -l sayline 显示 0.1.0；/usr/bin/sayline 真实语音转写成功"
+status = "verified"

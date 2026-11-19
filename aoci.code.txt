@@ -1,0 +1,90 @@
+#AOCI-CODE-VOLUME: 1
+
+===/<repository>/===
+.editorconfig[XC5T]: F:统一编辑器缩进、行尾与字符集约定 | R:- | A:- | S:Rust 用 4 空格、Markdown 不裁剪行尾空格；其余语言 2 空格
+.gitattributes[XC5T]: F:强制所有平台检出为 LF 行尾，保证认知基线哈希可复现 | R:- | A:- | S:基线哈希基于原始字节；autocrlf 改写会把整棵树判定为过期
+.gitignore[XC6T]: F:排除构建产物、代理工具状态与本机私有材料 | R:- | A:- | S:.aoci 运行时状态由 .aoci/.gitignore 自行管理，此处重复忽略会漏掉正式资产
+AGENTS.md[SC5S]: F:仓库规则与 AOCI 托管认知块，供编码代理阅读 | R:code:HANDOFF.md,code:aoci.code.txt | A:- | S:aoci:begin 与 aoci:end 之间由 AOCI 整体重渲染，手改会被覆盖
+CHANGELOG.md[SC3T]: F:记录已发布与未发布的用户可见变更 | R:code:README.md | A:- | S:未发布段落属于发布前清理项，不得随发布一起提交
+CONTEXT.md[SC5T]: F:定义 attempt、ticket、capture、chunk 等领域词汇及其禁用同义词 | R:code:spec/asr-protocol.md | A:- | S:术语用于命名与文档；把 attempt 写成 session 会与录音状态机混淆
+HANDOFF.md[SC5T]: F:给下一个接手会话的最短上下文、已验收证据与未决问题 | R:code:AGENTS.md,code:docs/agents/verification.md | A:- | S:文中未决项是当前事实而非历史记录，接手前须按此复核
+LICENSE[SC3M]: F:声明 Apache-2.0 授权全文 | R:code:NOTICE | A:- | S:仅发布源码；二进制分发需另行携带全部依赖许可文本
+NOTICE[SC3T]: F:声明与 ZCode 的参考关系、非官方身份与不含其运行时 | R:code:LICENSE,code:THIRD-PARTY-NOTICES.md | A:- | S:不得写入 ZCode Electron 运行时或任何 ZCode 二进制
+README.md[SC9S]: F:项目定位、协议与账号风险声明、构建运行与数据隐私说明 | R:code:HANDOFF.md,code:spec/asr-protocol.md | A:- | S:非官方且可能违反 ZCode 用户协议；只发布源码，不发布预编译二进制
+THIRD-PARTY-NOTICES.md[SC5T]: F:列出直接依赖与系统组件的许可，供二进制分发合规使用 | R:code:packaging/copyright | A:- | S:传递依赖许可随上游包分发，二进制分发方必须自行补齐
+
+===/<repository>/docs/agents/===
+architecture.md[SC8T]: F:描述数据流、Rust 模块职责、状态机、事件契约与设计 token | R:code:impl/src-tauri/src/asr.rs,code:impl/src/App.tsx,code:impl/src/styles.css | A:- | S:sayline 与 sayline-theme 是前后端唯一事件契约；新增事件必须先改这里
+loop.md[SC5T]: F:六门净室循环与 R1-R6 覆盖规则，作为验收骨架 | R:code:spec/inventory.toml,code:docs/agents/verification.md | A:- | S:本项目没有 parity-floor 与 ratchet，判据以 inventory 与真机证据替代
+verification.md[SC5S]: F:本轮真机与 mock 验证证据、截图入口与未覆盖项 | R:code:docs/agents/loop.md,code:spec/inventory.toml | A:- | S:纯音样本只验证协议连通，不构成识别质量证据
+
+===/<repository>/docs/method/===
+README.md[SC3T]: F:指向净室方法、功能清单、协议规格与本轮证据 | R:code:docs/agents/loop.md | A:- | S:项目走参考实现路线，因此没有 private/ 路线 B 提取物
+
+===/<repository>/impl/===
+index.html[EC3T]: F:Vite 前端入口页，挂载 React 根节点 | R:code:impl/src/main.tsx | A:- | S:悬浮窗口按 #/overlay 哈希复用同一入口
+package.json[FC5T]: F:声明前端依赖、脚本与 pnpm 构建白名单 | R:code:impl/tsconfig.json,code:impl/vite.config.ts | A:pnpm dev,build,preview,tauri | S:esbuild 必须保留在 onlyBuiltDependencies，否则 pnpm 安装后无法构建
+tsconfig.json[FC5T]: F:前端 TypeScript 严格模式编译配置 | R:code:impl/package.json | A:- | S:noEmit 配合 bundler 解析；未启用 noUnusedLocals
+vite.config.ts[FC5T]: F:Vite 开发服务器固定 1420 端口与 es2022 构建目标 | R:code:impl/package.json,code:impl/src-tauri/tauri.conf.json | A:- | S:端口必须与 tauri.conf 的 devUrl 一致；strictPort 防止静默漂移
+
+===/<repository>/impl/src-tauri/===
+.gitignore[XC3T]: F:忽略 Rust 构建产物、node_modules 与前端 dist | R:- | A:- | S:-
+Cargo.toml[FC7T]: F:声明 Tauri 2、reqwest、rusqlite、symphonia 等 Rust 依赖 | R:code:impl/src-tauri/src/lib.rs,code:impl/src-tauri/build.rs | A:sayline_lib | S:rust-version 1.90 是硬下限；release 用 lto=thin 并 strip；crate-type 决定三端复用
+build.rs[EC3T]: F:调用 tauri_build 生成上下文与权限 schema | R:code:impl/src-tauri/tauri.conf.json | A:- | S:构建期要求 tauri.conf.json 与 capabilities 目录同时存在
+tauri.conf.json[FC6T]: F:定义窗口、bundle、deb 附带文件与 CSP | R:code:impl/src-tauri/capabilities/default.json,code:impl/src-tauri/Cargo.toml | A:- | S:overlay 窗口 transparent+alwaysOnTop+skipTaskbar 且默认 visible=false；productName 决定包名与可执行名
+
+===/<repository>/impl/src-tauri/capabilities/===
+default.json[FC5T]: F:授予 main 与 overlay 窗口核心默认与文件对话框权限 | R:code:impl/src-tauri/tauri.conf.json | A:- | S:新增窗口必须同时加入 windows 列表，否则权限不生效
+
+===/<repository>/impl/src-tauri/src/===
+asr.rs[DN9L]: F:申请 ticket、建立 WebSocket、收发 PCM 分块并收尾最终文本 | R:code:impl/src-tauri/src/audio.rs,code:impl/src-tauri/src/recording.rs,code:impl/src-tauri/src/file_job.rs,code:impl/src-tauri/src/settings.rs | A:run_session,AsrConfig | S:started 之前最多缓存 200 块；服务端 result 是全量快照不是增量；麦克风会话在 finish 前做静音与时长本地拦截
+audio.rs[CG5T]: F:定义 16 kHz 采样率、100 ms 分块常量与采集统计 | R:code:impl/src-tauri/src/capture.rs | A:SAMPLE_RATE,CHUNK_SAMPLES,CaptureStats,AudioMessage | S:时长由 samples/16000 推算，不要用字节数估算
+capture.rs[DH7S]: F:探测 parec、pw-record、arecord 并流式产出 PCM 分块与峰值 | R:code:impl/src-tauri/src/audio.rs | A:spawn_capture | S:录音命令按顺序探测；启动失败必须回报 Error 而不是静默空流；停止时 flush 不足 100 ms 的尾块
+commands.rs[EU8S]: F:暴露 Tauri 命令面：录音、设置、历史、复制、文件转写与窗口 | R:code:impl/src-tauri/src/recording.rs,code:impl/src-tauri/src/settings.rs,code:impl/src-tauri/src/history.rs,code:impl/src-tauri/src/paste.rs,code:impl/src-tauri/src/file_job.rs | A:start_recording,stop_recording,zcode_status,save_settings,export_history,transcribe_file | S:save_settings 会校验热键并触发重注册；语言与主题取值非法时回退默认值而不是报错
+credentials.rs[II8S]: F:读取 ZCode 凭据容器并用 keyring 主密钥 AES-256-GCM 解密出 JWT | R:code:impl/src-tauri/src/asr.rs | A:load_token,status,ZCodeStatus | S:只接受 enc:v2，enc:v1 一律拒绝；令牌不得写入日志、历史或导出文件
+events.rs[EM5T]: F:定义统一 sayline 事件枚举与发送函数 | R:code:impl/src/App.tsx,code:impl/src/Overlay.tsx | A:SaylineEvent,emit | S:事件名固定 sayline；新增变体必须同步前端类型，否则前端静默丢事件
+file_decode.rs[DG7T]: F:用 symphonia 解码音频为单声道 f32 并线性重采样到 16 kHz | R:code:impl/src-tauri/src/file_job.rs,code:impl/src-tauri/src/audio.rs | A:decode_audio | S:多声道取算术平均降混；单包解码错误跳过而不是整体失败
+file_job.rs[DN7S]: F:编排文件转写：解码、按节奏推送分块、进度与取消 | R:code:impl/src-tauri/src/asr.rs,code:impl/src-tauri/src/file_decode.rs,code:impl/src-tauri/src/state.rs | A:start,cancel,session_finished | S:同一时刻只允许一个文件任务且与麦克风录音互斥；发送节奏由 file_speed 控制
+history.rs[PD7S]: F:维护本机 SQLite transcripts 表并提供搜索、删除、清空与导出 | R:code:impl/src-tauri/src/commands.rs | A:History,HistoryItem,NewTranscript | S:库路径在 XDG data 目录；只存文本与时长不存音频；搜索用 LIKE 同时匹配正文与标题
+hotkey.rs[EU7S]: F:在独立线程注册全局热键，按下开始录音、松开结束 | R:code:impl/src-tauri/src/recording.rs,code:impl/src-tauri/src/events.rs | A:spawn,HotkeyCommand | S:热键被占用时报错而不是静默；重注册前先确认 id 变化；线程退出时必须注销
+lib.rs[EC8T]: F:组装 Tauri 应用：日志、状态、托盘、关闭到托盘与命令注册 | R:code:impl/src-tauri/src/state.rs,code:impl/src-tauri/src/hotkey.rs,code:impl/src-tauri/src/tray.rs,code:impl/src-tauri/src/commands.rs | A:run | S:无托盘时关闭窗口直接退出进程，不能隐藏成不可见后台；命令必须在 generate_handler 登记
+main.rs[EC3T]: F:二进制入口，转调 sayline_lib::run | R:code:impl/src-tauri/src/lib.rs | A:main | S:-
+paste.rs[DU7T]: F:写 X11 剪贴板并发送 Ctrl+V 完成自动粘贴 | R:code:impl/src-tauri/src/asr.rs | A:copy_text,paste_text | S:剪贴板对象必须存活否则内容被清空；文本只走剪贴板不进 argv 或 shell；仅 X11 有效
+recording.rs[DN8S]: F:编排麦克风会话：attempt 生命周期、悬浮层显示定位与取消 | R:code:impl/src-tauri/src/asr.rs,code:impl/src-tauri/src/credentials.rs,code:impl/src-tauri/src/state.rs | A:start,stop,cancel,toggle,emit_state,is_recording | S:旧 attempt 的事件必须按 id 丢弃；同时只允许一个录音；悬浮层在 idle 后延迟隐藏
+settings.rs[FC7S]: F:读写 settings.json、校验枚举并实现替换规则 | R:code:impl/src-tauri/src/commands.rs | A:Settings,load,save,apply_replacements | S:替换规则按 from 长度降序执行，短规则不得吞掉长规则前缀
+state.rs[RM8T]: F:集中 AppState：设置、历史、录音与文件任务句柄、HTTP 客户端 | R:code:impl/src-tauri/src/recording.rs,code:impl/src-tauri/src/file_job.rs | A:AppState,RecordingHandle,FileJob | S:HTTP 客户端超时 15 s；句柄为 Option，None 表示空闲
+tray.rs[EU6T]: F:创建托盘菜单并提供显示、录音切换与退出 | R:code:impl/src-tauri/src/lib.rs,code:impl/src-tauri/src/recording.rs | A:setup,show_main,available | S:SAYLINE_DISABLE_TRAY 可跳过；托盘失败时 available 必须为 false，否则关窗逻辑会隐藏进程
+
+===/<repository>/impl/src/===
+App.tsx[AU9M]: F:主窗口页面切换、事件归并、主题应用与录音状态机 | R:code:impl/src/views/RecordView.tsx,code:impl/src/views/HistoryView.tsx,code:impl/src/views/SettingsView.tsx,code:impl/src/views/FilesView.tsx,code:impl/src/api.ts | A:App | S:只在这里注册一次 sayline 监听；开始录音前必须清空上一轮预览文本
+Icons.tsx[LU5S]: F:内置一组描边 SVG 图标组件 | R:- | A:MicIcon,StopIcon,CopyIcon,TrashIcon,CheckIcon,CloseIcon | S:统一 24 viewBox 与 currentColor 描边，尺寸由 size 参数控制；图标集封闭，新增须同时改调用点
+Overlay.tsx[AU7S]: F:独立悬浮窗口：胶囊标签、10 段波形与错误文本 | R:code:impl/src/components/Waveform.tsx,code:impl/src/types.ts | A:Overlay | S:只处理 source=mic 的事件；主题从 localStorage 读取而不是每次查询设置
+api.ts[EU5T]: F:封装全部 Tauri invoke 命令的类型化前端入口 | R:code:impl/src/types.ts,code:impl/src-tauri/src/commands.rs | A:api | S:命令名必须与 Rust generate_handler 完全一致，改名只会让前端运行时失败
+main.tsx[EC5T]: F:前端入口：判断 overlay 路由、初始化主题并挂载 React | R:code:impl/src/App.tsx,code:impl/src/Overlay.tsx | A:- | S:overlay 检测靠 location.hash 等于 #/overlay；挂载前必须先设置 data-theme
+styles.css[AU9L]: F:ZCode 语义 token 与全部组件样式，含浅色深色两套主题 | R:code:impl/src/App.tsx,code:impl/src/Overlay.tsx | A:- | S:voice-input token 只给语音胶囊用；深浅主题靠 root 的 data-theme 切换，组件内不得硬编码颜色
+types.ts[LC5T]: F:前端共享类型：设置、历史项、事件契约与状态枚举 | R:code:impl/src/api.ts,code:impl/src-tauri/src/events.rs | A:Settings,HistoryItem,SaylineEvent,VoiceState | S:事件 payload 按 kebab-case 序列化，必须与 Rust 枚举变体逐一对应
+
+===/<repository>/impl/src/components/===
+Toast.tsx[LU5T]: F:底部提示条，支持 info、success、error 三种语气 | R:code:impl/src/Icons.tsx | A:Toast,ToastData,ToastTone | S:同时只渲染一条；关闭按钮带无障碍标签
+Waveform.tsx[LU5T]: F:把 0-1 电平序列渲染为等宽竖条波形 | R:- | A:Waveform | S:高度映射 3-14 px；不足条数前补 0，避免波形跳动
+
+===/<repository>/impl/src/views/===
+FilesView.tsx[AU7S]: F:文件转写页：拖放、文件选择、手动路径与进度 | R:code:impl/src/api.ts | A:FilesView | S:无窗口管理器时原生选择框不稳定，必须保留手动路径回退；仅接受音频扩展名
+HistoryView.tsx[AU7S]: F:历史页：搜索、复制、删除、清空与 Markdown/JSON 导出 | R:code:impl/src/api.ts | A:HistoryView | S:搜索输入做 180 ms 去抖；删除与清空必须经 confirm 确认
+RecordView.tsx[AU7S]: F:录音页：状态标签、实时与最终文本、复制清空与胶囊控件 | R:code:impl/src/components/Waveform.tsx,code:impl/src/api.ts | A:RecordView | S:requesting 期间点击是取消；finishing 期间按钮禁用；波形与停止方块共用同一胶囊
+SettingsView.tsx[AU8M]: F:设置页：主题、热键、语言、自动粘贴、转写速度与替换规则 | R:code:impl/src/api.ts | A:SettingsView | S:未改动时保存按钮禁用；from 为空的替换规则在保存时被后端丢弃
+
+===/<repository>/log/===
+devlog.md[SC5T]: F:按轮记录落地内容、证据与未决项 | R:code:HANDOFF.md | A:- | S:证据必须写实际命令输出，不写看起来正确
+
+===/<repository>/packaging/===
+copyright[OC3T]: F:deb 包的 Debian 机器可读版权声明 | R:code:LICENSE,code:THIRD-PARTY-NOTICES.md | A:- | S:指向系统自带的 Apache-2.0 全文路径，打包时不得改写
+
+===/<repository>/spec/===
+asr-protocol.md[SN9S]: F:ZCode ASR 客户端互操作规格：音频格式、ticket、WebSocket 与超时 | R:code:impl/src-tauri/src/asr.rs | A:- | S:服务端仓库未公开，行为以客户端代码与 e2e mock 为准；公开传播规避方法可能违反 ZCode 用户协议
+inventory.toml[FC5S]: F:机器可读功能清单与验收状态 | R:code:docs/agents/verification.md | A:- | S:status=verified 必须有本轮证据；托盘项仍为 pending
+
+===/<repository>/tools/===
+README.md[SC3T]: F:说明 mock ASR、粘贴目标、合成音频与虚拟麦克风用法 | R:code:tools/asr_mock.py,code:tools/paste_target.py | A:- | S:测试结束必须恢复默认录音源并卸载 null sink
+asr_mock.py[TN7S]: F:本地 ASR 替身，实现 ticket 端点与 realtime WebSocket 并统计字节数 | R:code:spec/asr-protocol.md,code:tools/README.md | A:main | S:不发出任何外部网络请求；需把服务地址改为本机地址才会被应用使用
+paste_target.py[TU3T]: F:一次性 Tk 窗口，用于验证自动粘贴收到文本 | R:code:tools/README.md | A:main | S:9 秒后打印 ENTRY 并退出；需要 X11 DISPLAY

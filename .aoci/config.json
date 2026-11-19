@@ -275,6 +275,28 @@
         "created_by": "aoci-init",
         "order": 119,
         "enabled": true
+      },
+      {
+        "rule_id": "index-ts-tests",
+        "action": "index",
+        "pattern": "**/*.test.ts",
+        "pattern_kind": "glob",
+        "reason": "测试钉住行为与回归，属于本仓长期维护的一等认知对象",
+        "source": "user",
+        "created_by": "climashscape",
+        "order": 10,
+        "enabled": true
+      },
+      {
+        "rule_id": "index-js-tests",
+        "action": "index",
+        "pattern": "**/*.test.js",
+        "pattern_kind": "glob",
+        "reason": "测试钉住行为与回归，属于本仓长期维护的一等认知对象",
+        "source": "user",
+        "created_by": "climashscape",
+        "order": 11,
+        "enabled": true
       }
     ]
   },
